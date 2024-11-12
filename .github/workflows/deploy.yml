@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     tags:
-      - 'v*' # This will trigger the workflow on pushing tags starting with 'v'
+      - 'v*' # 这将在推送以 'v' 开头的标签时触发工作流程
 
 jobs:
   build-and-deploy:
@@ -15,16 +15,35 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # You can adjust this to your project's Node.js version
+          node-version: '18' # 您可以根据项目需要调整 Node.js 版本
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8 # 使用 pnpm 的最新稳定版本，您可以根据需要指定具体版本
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist # Adjust this if your build output directory is different
+          publish_dir: ./dist # 如果您的构建输出目录不同，请调整此处
