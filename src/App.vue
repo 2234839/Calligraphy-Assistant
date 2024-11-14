@@ -14,7 +14,8 @@
   const dragging = ref(false);
   const startPosition = reactive({ x: 0, y: 0 });
   const savedCells = localStorage.getItem("cells");
-  const cells = reactive(JSON.parse(savedCells ?? "[]") as cell[]);
+  import 太上老君说常清静经 from "./太上老君说常清静经.json";
+  const cells = reactive(太上老君说常清静经 as cell[]);
   console.log(JSON.parse(savedCells ?? "[]"));
 
   const showIndex = ref(0);
